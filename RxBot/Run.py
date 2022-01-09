@@ -3,8 +3,7 @@ from Initialize import *
 initSetup()
 from CustomCommands import *
 from websocket import create_connection
-customcmds = CustomCommands()
-
+rpg = rpg()
 
 
 
@@ -28,7 +27,7 @@ class runMiscControls:
 
 
 def runcommand(command, cmdArguments, user, mute):
-    commands = {**commands_CustomCommands}
+    commands = {**commands_rpg}
     cmd = None
     arg1 = None
     arg2 = None
@@ -72,6 +71,7 @@ class chat:
         self.url = "wss://api.casterlabs.co/v2/koi?client_id=LmHG2ux992BxqQ7w9RJrfhkW"
         self.puppet = False
         self.active = False
+        self.messageSent = ""
 
         # Set the normal token
         if os.path.exists("../Config/token.txt"):
@@ -105,6 +105,7 @@ class chat:
         self.ws.send(json.dumps(request))
 
     def sendToChat(self, message):
+        self.messageSent = message
         if message:
             if not self.puppet:
                     request = {
@@ -145,12 +146,15 @@ class chat:
                         command = ((message.split(' ', 1)[0]).lower()).replace("\r", "")
                         cmdarguments = message.replace(command or "\r" or "\n", "")[1:]
                         print("(" + misc.formatTime() + ")>> " + user + ": " + message)
-                        for cmdFromFile in commandsFromFile:
-                            if command.lower() == cmdFromFile.lower():
-                                chatConnection.sendToChat(commandsFromFile[cmdFromFile])
+                        if not self.messageSent == message:
+                            for cmdFromFile in commandsFromFile:
+                                if command.lower() == cmdFromFile.lower():
+                                    chatConnection.sendToChat(commandsFromFile[cmdFromFile])
 
-                        if command[0] == "!":  # Only run normal commands if COMMAND PHRASE is blank
-                            runcommand(command, cmdarguments, user, False)
+                            if command[0] == "!":  # Only run normal commands if COMMAND PHRASE is blank
+                                runcommand(command, cmdarguments, user, False)
+                            else:
+                                chatConnection.sendToChat(rpg.processChatMsg(message, user))
                     except:
                         pass
 

@@ -5,6 +5,8 @@ import json
 import socket
 import os
 import datetime
+import sqlite3
+from sqlite3 import Error
 try:
     import xlsxwriter
     import xlrd
@@ -30,7 +32,74 @@ class coreFunctions:
 
         return moderators
 
+class dbControl:
+    def __init__(self):
+        self.db = None
+
+    def createDb(self):
+        try:
+            self.db = sqlite3.connect('botData.db', check_same_thread=False)
+            sql_creation_commands = (
+                # Create chat log
+                """ CREATE TABLE IF NOT EXISTS players (
+                                id integer PRIMARY KEY,
+                                username text,
+                                currentArea text,
+                                currentRoom text
+                            ); """,
+
+            )
+            c = self.db.cursor()
+            for item in sql_creation_commands:
+                c.execute(item)
+            self.db.commit()
+        except Error as e:
+            print(e)
+
+    def sqlError(self, src, command, e):
+        print("DATABASE ERROR INSIDE %s FUNCTION:" % src.upper())
+        print(e)
+        print(command)
+        return False
+
+    def read(self, command):
+        self.db = sqlite3.connect('botData.db', check_same_thread=False)
+        try:
+            cursor = self.db.cursor()
+            cursor.execute(command)
+            data = cursor.fetchone()
+            self.db.close()
+            return data
+        except Error as e:
+            self.db.rollback()
+            self.sqlError("READ", command, e)
+
+    def fetchAll(self, command):
+        self.db = sqlite3.connect('botData.db', check_same_thread=False)
+        try:
+            cursor = self.db.cursor()
+            cursor.execute(command)
+            data = cursor.fetchall()
+            self.db.close()
+            return data
+        except Error as e:
+            self.db.rollback()
+            self.sqlError("FETCHALL", command, e)
+
+    def write(self, command):
+        self.db = sqlite3.connect('botData.db', check_same_thread=False)
+        try:
+            cursor = self.db.cursor()
+            cursor.execute(command)
+            self.db.commit()
+            self.db.close()
+            return True
+        except Error as e:
+            self.db.rollback()
+            self.sqlError("WRITE", command, e)
+
 core = coreFunctions()
+db = dbControl()
 
 def initSetup():
     global settings, commandsFromFile
@@ -43,6 +112,8 @@ def initSetup():
     if not os.path.exists('Resources'):
         os.makedirs('Resources')
         print("Creating necessary folders...")
+
+    db.createDb()
 
     # Create Settings.xlsx
     settings = settingsConfig.settingsSetup(settingsConfig())
