@@ -69,8 +69,10 @@ class chat:
                     exit()
 
 
-chatConnection = chat()
-chatConnection.main("main")
+authChatConnection = chat()
+
+if __name__ == "__main__":
+    authChatConnection.main("main")
 
 
 

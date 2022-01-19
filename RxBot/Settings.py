@@ -21,8 +21,7 @@ GenSettings = (vars(parser.parse_args())["GenSettings"])
 '''FORMAT ---->   ("Option", "Default", "This is a description"), '''
 
 defaultSettings = [
-    ("TRIGGER MESSAGE", "", "The message from another bot that will trigger this bot's main function.,"),
-    ("TRIGGER USER", "CreatisBot", "Only this user can send the TRIGGER MESSAGE and trigger the bot."),
+    ("POLL DURATION", "30", "The time, in seconds, that chat has to choose what they want to do before the poll is completed and the action takes place."),
 ]
 
 
