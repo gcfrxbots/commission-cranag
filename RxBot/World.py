@@ -59,7 +59,7 @@ class worldConfig:
         print("Formatting world xlsx")
         try:
             with xlsxwriter.Workbook('../Config/World.xlsx') as workbook:
-                for area in range(10):
+                for area in range(50):
                     worksheet = workbook.add_worksheet('Area%s' % area)
                     format_graybkg = workbook.add_format({'bold': True, 'center_across': False, 'font_color': 'white', 'bg_color': 'gray'})
                     format_bold = workbook.add_format({'bold': True, 'center_across': True, 'font_color': 'white', 'bg_color': 'black'})

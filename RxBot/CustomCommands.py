@@ -8,8 +8,8 @@ from World import *
 commands_rpg = {
     "!test": ('rpg.test', 'cmdArguments', 'user'),
     "!reset": ('rpg.reset', 'cmdArguments', 'user'),
-    "!addarea": ('rpg.addArea', 'cmdArguments', 'user'),
 }
+
 
 class resources:
     def __init__(self):
@@ -46,7 +46,6 @@ class resources:
         self.pollActive = False
         self.pollEntries = {}
         self.pollVoters = []
-        print(winnerPhrase)
 
         roomOptions = world.world["areas"][rpg.area]["rooms"][rpg.room]["options"]
         for optionNum in roomOptions:
@@ -54,8 +53,11 @@ class resources:
             phrase = option["Phrase"]
             ID = option["ID"]
             if phrase.lower() in winnerPhrase:
-                db.write('''UPDATE players SET currentRoom = "{ID}";'''.format(ID=ID))
-                chatConnection.sendToChat("You " + winnerPhrase + ". " + world.world["areas"][rpg.area]["rooms"][ID]["description"])
+                if ID[0] == "$":
+                    rpg.IDModifier(ID)
+                else:
+                    db.write('''UPDATE players SET currentRoom = "{ID}";'''.format(ID=ID))
+                    chatConnection.sendToChat("You " + winnerPhrase + ". " + world.world["areas"][rpg.area]["rooms"][ID]["description"])
 
 
 class rpg():
@@ -86,13 +88,21 @@ class rpg():
                 resources.pollAddEntry(phrase.lower(), user)
 
 
-
-
     def test(self, args, user):
         #print(resources.world["area1"]["room1"]["description"])
         print("What do you do?")
         #print(resources.world["area1"]["room1"]["options"])
 
+
+    def IDModifier(self, ID):
+        splitID = ID.split()
+        if "$AREA" == splitID[0]:
+            newArea = splitID[1]
+            newRoom = splitID[2]
+            db.write('''UPDATE players SET currentRoom="{newRoom}", currentArea="{newArea}";'''.format(newRoom=newRoom, newArea=newArea))
+            rpg.area = newArea
+            rpg.room = newRoom
+            chatConnection.sendToChat(world.world["areas"][newArea]["rooms"][newRoom]["description"])
 
 
     def addPlayer(self, args, user):
@@ -107,7 +117,6 @@ class rpg():
             '''INSERT INTO players(currentArea, currentRoom) VALUES("{currentArea}", "{currentRoom}");'''.format(currentArea=firstArea, currentRoom=firstRoom))
 
 
-
     def whereAmI(self, args, user):
         location = resources.getCurrentLocation()
         self.area = location[0]
@@ -115,12 +124,14 @@ class rpg():
 
         return world.world["areas"][self.area]["rooms"][self.room]["description"]
 
+
     def whereAmIArea(self, args, user):
         location = resources.getCurrentLocation()
         self.area = location[0]
         self.room = location[1]
 
         return world.world["areas"][self.area]["description"]
+
 
     def help(self, args, user):
         location = resources.getCurrentLocation()
@@ -134,6 +145,7 @@ class rpg():
 
         return optString[:-2]
 
+
     def reset(self, args, user):
         if not args or args != "confirm":
             return "Are you sure? Type !reset confirm to reset your RPG progress."
@@ -141,11 +153,6 @@ class rpg():
         db.write('''DELETE FROM players;'''.format(user=user))
         self.addPlayer(None, user)
         return "Your progress in the RPG has been reset."
-
-    def addArea(self, args, user):
-        pass
-
-
 
 
 
@@ -163,7 +170,6 @@ class timer:
 
     def timerDone(self, timer):
         self.timers.pop(timer)
-        print(timer + " timer complete.")
         if not self.timers:
             self.timerActive = False
 
