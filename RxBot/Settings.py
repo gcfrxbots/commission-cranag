@@ -1,6 +1,7 @@
 import os
 import time
 import argparse
+from World import *
 
 try:
     import xlrd
@@ -133,6 +134,11 @@ class settingsConfig:
             self.formatSettingsXlsx()
             stopBot("Please open Config / Settings.xlsx and configure the bot, then run it again.")
 
+        if not os.path.exists('../Config/World.xlsx'):
+            print("Creating World.xlsx")
+            formatWorldXlsx()
+            stopBot("Config/World.xlsx has been generated!")
+
         wb = xlrd.open_workbook('../Config/Settings.xlsx')
         # Read the settings file
 
@@ -200,6 +206,8 @@ def buildConfig():
         print("\nCommands file has been created.")
     else:
         print("Everything is already set up!")
+
+#world = worldConfig()
 
 
 if GenSettings:

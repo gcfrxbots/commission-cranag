@@ -55,53 +55,6 @@ class worldConfig:
         }
         self.readWorld()
 
-    def formatWorldXlsx(self):
-        print("Formatting world xlsx")
-        try:
-            with xlsxwriter.Workbook('../Config/World.xlsx') as workbook:
-                for area in range(50):
-                    worksheet = workbook.add_worksheet('Area%s' % area)
-                    format_graybkg = workbook.add_format({'bold': True, 'center_across': False, 'font_color': 'white', 'bg_color': 'gray'})
-                    format_bold = workbook.add_format({'bold': True, 'center_across': True, 'font_color': 'white', 'bg_color': 'black'})
-                    format_light = workbook.add_format({'bold': True, 'center_across': True, 'font_color': 'black', 'bg_color': '#DCDCDC', 'border': True})
-                    format_black = workbook.add_format({'bold': True, 'center_across': True, 'font_color': 'black', 'bg_color': 'black'})
-                    materialColorCodes = ["#FFCDD2", "#E1BEE7", "#D1C4E9", "#BBDEFB", "#B2EBF2", "#B2DFDB", "#C8E6C9", "#DCEDC8", "#F0F4C3", "#FFECB3"]
-                    random.shuffle(materialColorCodes)
-                    worksheet.set_column(0, 0, 30)
-                    worksheet.set_column(1, 1, 100)
-                    for i in range(20):
-                        x = i + 2
-                        worksheet.set_column(x, x, 30)
-                    worksheet.set_row(1, 40)
-                    worksheet.set_row(2, 15, format_black)
-                    for i in range(500):
-                        x = i + 5
-                        worksheet.set_row(x, 40)
-                    worksheet.write(0, 0, "Area Name", format_light)
-                    worksheet.write(1, 0, "Area Description", format_light)
-                    worksheet.write(4, 0, "Room ID", format_light)
-                    worksheet.write(4, 1, "Room Description", format_light)
-                    column = 2
-                    for option in range(1, 11):
-                        format_option = workbook.add_format({'border': True, 'bg_color': materialColorCodes[option-1]})
-                        row = 4
-                        # Write Option column
-                        worksheet.write(row, column, "Option %s" % option, format_option)
-                        for y in range(500):
-                            x = y + 5
-                            worksheet.write(x, column, "", format_option)
-                        column += 1
-                        # Go over a column then write ID column
-                        worksheet.write(row, column, "Room ID for Option %s" % option, format_option)
-                        for y in range(500):
-                            x = y + 5
-                            worksheet.write(x, column, "", format_option)
-                        column += 1
-
-        except PermissionError:
-            stopBot("Can't open the World file. Please close it and make sure it's not set to Read Only.")
-
-
 
     def readWorld(self):
         workbook = xlrd.open_workbook("../Config/World.xlsx")
@@ -174,30 +127,55 @@ class worldConfig:
                 self.world["areas"][area["ID"]] = area
 
 
+def formatWorldXlsx():
+    print("Formatting world xlsx")
+    try:
+        with xlsxwriter.Workbook('../Config/World.xlsx') as workbook:
+            for area in range(50):
+                worksheet = workbook.add_worksheet('Area%s' % area)
+                format_graybkg = workbook.add_format({'bold': True, 'center_across': False, 'font_color': 'white', 'bg_color': 'gray'})
+                format_bold = workbook.add_format({'bold': True, 'center_across': True, 'font_color': 'white', 'bg_color': 'black'})
+                format_light = workbook.add_format({'bold': True, 'center_across': True, 'font_color': 'black', 'bg_color': '#DCDCDC', 'border': True})
+                format_black = workbook.add_format({'bold': True, 'center_across': True, 'font_color': 'black', 'bg_color': 'black'})
+                materialColorCodes = ["#FFCDD2", "#E1BEE7", "#D1C4E9", "#BBDEFB", "#B2EBF2", "#B2DFDB", "#C8E6C9", "#DCEDC8", "#F0F4C3", "#FFECB3"]
+                random.shuffle(materialColorCodes)
+                worksheet.set_column(0, 0, 30)
+                worksheet.set_column(1, 1, 100)
+                for i in range(20):
+                    x = i + 2
+                    worksheet.set_column(x, x, 30)
+                worksheet.set_row(1, 40)
+                worksheet.set_row(2, 15, format_black)
+                for i in range(500):
+                    x = i + 5
+                    worksheet.set_row(x, 40)
+                worksheet.write(0, 0, "Area Name", format_light)
+                worksheet.write(1, 0, "Area Description", format_light)
+                worksheet.write(4, 0, "Room ID", format_light)
+                worksheet.write(4, 1, "Room Description", format_light)
+                column = 2
+                for option in range(1, 11):
+                    format_option = workbook.add_format({'border': True, 'bg_color': materialColorCodes[option-1]})
+                    row = 4
+                    # Write Option column
+                    worksheet.write(row, column, "Option %s" % option, format_option)
+                    for y in range(500):
+                        x = y + 5
+                        worksheet.write(x, column, "", format_option)
+                    column += 1
+                    # Go over a column then write ID column
+                    worksheet.write(row, column, "Room ID for Option %s" % option, format_option)
+                    for y in range(500):
+                        x = y + 5
+                        worksheet.write(x, column, "", format_option)
+                    column += 1
 
-    def settingsSetup(self):
-        global settings
-
-        if not os.path.exists('../Config'):
-            print("Creating a Config folder, check it out!")
-            os.mkdir("../Config")
-
-        if not os.path.exists('../Config/World.xlsx'):
-            print("Creating World.xlsx")
-            self.formatWorldXlsx()
-            stopBot("Config/World.xlsx has been generated!")
-
-        wb = xlrd.open_workbook('../Config/World.xlsx')
-        # Read the settings file
-
-        #settings = self.readSettings(wb)
-
-        if not os.path.exists("../Config/token.txt"):
-            stopBot("No auth token exists, run INSTALL_REQUIREMENTS in the Setup folder and authenticate!")
-
-        print(">> Initial Checkup Complete! Connecting to Chat...")
-        return settings
+    except PermissionError:
+        stopBot("Can't open the World file. Please close it and make sure it's not set to Read Only.")
 
 
 
-world = worldConfig()
+try:
+    world = worldConfig()
+except:
+    formatWorldXlsx()

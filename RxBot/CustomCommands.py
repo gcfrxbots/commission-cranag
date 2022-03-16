@@ -1,6 +1,5 @@
 from Settings import *
 from Initialize import *
-from World import *
 
 
 
@@ -84,7 +83,7 @@ class rpg():
             option = roomOptions[optionNum]
             phrase = option["Phrase"]
             ID = option["ID"]
-            if phrase.lower() in message:
+            if phrase.lower() in message.lower():
                 resources.pollAddEntry(phrase.lower(), user)
 
 
