@@ -1,0 +1,9 @@
+xlsxwriter
+
+pywin32
+
+xlrd==1.2.0
+
+validators
+
+websocket-client
